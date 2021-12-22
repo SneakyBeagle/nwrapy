@@ -168,6 +168,7 @@ def scan(args):
 
     #######################################################
     print(START,"STAGE 1: Host discovery for", args.target)
+    args.target=convert_to_nmap_target(args.target.split(' '))
     nwrap.host_discovery(target=args.target)
     for dt,item in nwrap.executed.items():
         db.insert_command(cmd=item['cmd'], status_code=item['status_code'],
