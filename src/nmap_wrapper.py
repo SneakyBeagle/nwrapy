@@ -167,7 +167,13 @@ class Nmap_Wrapper():
         nmap=self.nmap
         cmd=cmd.format(nmap=nmap, options=options, target=target, xml_file=xml_file)
         cmd=shlex.split(cmd)
-        return self.execute(cmd=cmd)
+        self.stdout,self.stderr=None,None
+        t = Thread(self.execute, args=(cmd,))
+        t.start()
+        while t.is_alive():
+            print('Waiting to finish', end='\r')
+        #return self.execute(cmd=cmd)
+        return self.stdout, self.stderr
         
     def execute(self, cmd: list):
         print('Executing:\n\t'+clr.FAINT_WHITE, ' '.join(cmd)+clr.RESET)
@@ -184,6 +190,7 @@ class Nmap_Wrapper():
         self.executed[str(datetime.now())]={'cmd':' '.join(cmd),
                                             'status_code':str(process.returncode),
                                             'time':t}
+        self.stdout,self.stderr=stdout,stderr
         return stdout, stderr
 
     def get_subnets(ips):

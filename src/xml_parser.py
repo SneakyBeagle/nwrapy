@@ -7,6 +7,15 @@ class XML_Parser():
     def __init__(self):
         pass
 
+    def parse_progress_xml(self, xml_file):
+        """
+        Find all taskprogress percentages and return the last one
+        """
+        perc=None
+        perc = self.find_taskprogress(xml_file=xml_file)[-1]
+
+        return perc
+
     def parse_disco_xml(self, xml_file):
         live_hosts = []
         xml_tree = ET.parse(xml_file)
@@ -78,6 +87,11 @@ class XML_Parser():
                 hosts[ip]['accuracy'].append(os.get('accuracy'))
 
         return self.__replace_None(hosts=hosts)
+
+    def find_taskprogress(self, xml_file):
+        xml_tree = ET.parse(xml_file)
+        xml_root = xml_tree.getroot()
+        return xml_root.findall('taskprogress')
 
     def find_hosts(self, xml_file):
         xml_tree = ET.parse(xml_file)

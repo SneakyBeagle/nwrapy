@@ -253,6 +253,22 @@ def scan(args):
             
     print(DONE,"STAGE 3 finished")
 
+    #-----------------------------------------------------#
+    print(START, "Writing intermediary results")
+    if args.output:
+        csv=csv_conv(output_dir=args.output)
+    else:
+        csv=csv_conv()
+
+    ihosts=db.get_all_hosts()
+    iresults={}
+    for host in ihosts:
+        iresults[host]=db.get_all_from_host(ip=host)
+    csv.write_summary(hosts_dict=iresults)
+    csv.write_full(hosts_dict=iresults)
+    print(DONE, "Wrote intermediary results")
+    #-----------------------------------------------------#
+    
     #######################################################
     print(START,"STAGE 4: OS Scanning", len(hosts),"hosts")
     targets=convert_to_nmap_target(hosts=hosts)
@@ -315,10 +331,7 @@ def scan(args):
 
     print(START, "Writing CSV report")
     
-    if args.output:
-        csv=csv_conv(output_dir=args.output)
-    else:
-        csv=csv_conv()
+
     hosts=db.get_all_hosts()
     results={}
     for host in hosts:
