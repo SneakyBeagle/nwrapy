@@ -168,10 +168,11 @@ class Nmap_Wrapper():
         cmd=cmd.format(nmap=nmap, options=options, target=target, xml_file=xml_file)
         cmd=shlex.split(cmd)
         self.stdout,self.stderr=None,None
-        t = Thread(self.execute, args=(cmd,))
+        t = Thread(target=self.execute, args=(cmd,))
         t.start()
         while t.is_alive():
             print('Waiting to finish', end='\r')
+        t.join()
         #return self.execute(cmd=cmd)
         return self.stdout, self.stderr
         
