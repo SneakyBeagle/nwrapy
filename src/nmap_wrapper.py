@@ -172,6 +172,7 @@ class Nmap_Wrapper():
         t.start()
         while t.is_alive():
             print('Waiting to finish', end='\r')
+            time.sleep(0.001)
         t.join()
         #return self.execute(cmd=cmd)
         return self.stdout, self.stderr
