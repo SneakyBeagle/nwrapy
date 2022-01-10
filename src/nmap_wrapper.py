@@ -184,7 +184,7 @@ class Nmap_Wrapper():
         stdout, stderr = process.communicate()
         end=time.time()
         t="%.4f"%(end-start)
-        print('Time:', t+'s')
+        print('Time:', t+'s      ')
         stdout = stdout.decode('utf-8')
         stderr = stderr.decode('utf-8')
         if stderr:

@@ -25,7 +25,11 @@ printf "[+] Creating executable: "$executable"\n"
 pyinstaller $mainfile --onefile
 
 printf "[+] Moving executable to "$target_dir"\n"
-sudo cp dist/$executable $target_dir$executable
+if [ "$EUID" -ne 0 ]; then
+    sudo cp dist/$executable $target_dir$executable
+else
+    cp dist/$executable $target_dir$executable
+fi
 printf "[+] Executable installed at "$target_dir$executable"\n"
 
 # Cleanup
