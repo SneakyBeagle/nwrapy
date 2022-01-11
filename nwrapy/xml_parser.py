@@ -16,6 +16,57 @@ class XML_Parser():
 
         return perc
 
+    def get_command(self, xml_file):
+        xml_tree = ET.parse(xml_file)
+        xml_root = xml_tree.getroot()
+        cmd=xml_root.get('args')
+        return cmd
+    
+    def get_hosts(self, xml_file):
+        hosts={}
+        for host in self.find_hosts(xml_file=xml_file):
+            state=host.find('status').get('state')
+            if state=="up":
+                ip = host.find('address').get('addr')
+                try:
+                    hostname = host.find('hostnames').find('hostname').get('name')
+                except AttributeError:
+                    hostname='None'
+                portnrs=[]
+                services=[]
+                products=[]
+                versions=[]
+                extrainfo=[]
+                ostypes=[]
+                methods=[]
+                ports=self.find_ports(host=host)
+                for port in ports:
+                    state=port.find('state').get('state')
+                    if state=='open':
+                        portnrs.append(port.get('portid'))
+                        service=port.find('service')
+                        services.append(str(service.get('name')))
+                        products.append(str(service.get('product')))
+                        versions.append(str(service.get('version')))
+                        extrainfo.append(str(service.get('extrainfo')))
+                        ostypes.append(str(service.get('ostype')))
+                        #methods.append(str(service.get('method')))
+                hosts[ip] = {}
+                if len(hostname):
+                    hosts[ip]['hostname']=hostname
+                if len(portnrs):
+                    hosts[ip]['ports']=portnrs
+                    hosts[ip]['services']=services
+                    hosts[ip]['products']=products
+                    hosts[ip]['versions']=versions
+                    hosts[ip]['extrainfo']=extrainfo
+                if len(ostypes):
+                    hosts[ip]['ostypes']=ostypes
+                #hosts[ip]['methods']=methods
+                
+        return hosts
+                
+
     def parse_disco_xml(self, xml_file):
         live_hosts = []
         xml_tree = ET.parse(xml_file)

@@ -1,13 +1,14 @@
 from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as f:
-    long_description=f.read()
+    readme=f.read()
 
 setup(name='nwrapy',
-      version='0.1.0',
+      version='0.1.1',
       description='Nmap wrapper',
       author='Jochem Stevense',
       author_email='',
+      #long_description=readme,
       url='https://github.com/SneakyBeagle/nwrapy',
       project_urls={
           "Bug Tracker": "https://github.com/SneakyBeagle/nwrapy/issues"

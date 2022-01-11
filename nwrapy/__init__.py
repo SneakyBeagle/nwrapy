@@ -7,6 +7,7 @@ from nwrapy.colours import clr
 from nwrapy.interactive import *
 from nwrapy.read import *
 from nwrapy.get_ip import *
+from nwrapy.table import Table
 
 import re
 import sys
@@ -309,30 +310,30 @@ def scan(args):
             print('No open ports detected')
     print(DONE,"STAGE 6 finished")
 
-    #######################################################
-    print(START,"STAGE 7: Full port scan on", len(hosts),"hosts")
-    nwrap.port_scanning(target=targets, full=True)
+    if not(args.no_full_portscan):
+        #######################################################
+        print(START,"STAGE 7: Full port scan on", len(hosts),"hosts")
+        nwrap.port_scanning(target=targets, full=True)
 
-    for dt,item in nwrap.executed.items():
-        db.insert_command(cmd=item['cmd'], status_code=item['status_code'],
-                          time=item['time'], datetime=dt)
-    nresults={}
-    for f in nwrap.xml_files:
-        for key,el in xml_parser.parse_disco_ports_xml(xml_file=f).items():
-            nresults[key]=el
+        for dt,item in nwrap.executed.items():
+            db.insert_command(cmd=item['cmd'], status_code=item['status_code'],
+                              time=item['time'], datetime=dt)
+        nresults={}
+        for f in nwrap.xml_files:
+            for key,el in xml_parser.parse_disco_ports_xml(xml_file=f).items():
+                nresults[key]=el
             
-    nr_ports=0
-    for ip, it in nresults.items():
-        # update open ports
-        db.update_host_open_ports(ip=ip, open_ports=len(it['ports']))
-        for i in range(len(it['ports'])):
-            db.insert_port(ip=ip, port=it['ports'][i], reason=it['reason'][i])
-            nr_ports+=1
-    print(DONE,"STAGE 7 finished")
+        nr_ports=0
+        for ip, it in nresults.items():
+            # update open ports
+            db.update_host_open_ports(ip=ip, open_ports=len(it['ports']))
+            for i in range(len(it['ports'])):
+                db.insert_port(ip=ip, port=it['ports'][i], reason=it['reason'][i])
+                nr_ports+=1
+        print(DONE,"STAGE 7 finished")
 
     print(START, "Writing CSV report")
     
-
     hosts=db.get_all_hosts()
     results={}
     for host in hosts:
@@ -344,36 +345,44 @@ def scan(args):
     print(FIN,"Finished")
 
 def read(args):
-    target=args.target
-    database=args.database
-    read_target(target=target, database=database)
+    if args.service:
+        pass
+    elif args.target:
+        database=args.database
+        read_target(target=args.target, database=database)
 
-def interactive(args):
-    parser=ArgParser(description="Help info:")
-    sp=parser.add_subparsers()
-    get=sp.add_parser('get')
-    get.add_argument('target')
-    get.set_defaults(func=getter)
-    conn=sp.add_parser('connect')
-    conn.add_argument('database')
-    conn.set_defaults(func=init)
-    ls=sp.add_parser('ls')
-    ls.add_argument('objects', choices=['targets', 'subnets',
-                                        'commands', 'all'])
-    ls.set_defaults(func=lister)
-    
-    help=sp.add_parser('help')
-    help.set_defaults(func=parser.print_help)
-    try:
-        while(1):
-            c = input(PRMPT)
-            res=parser.parse_args(c.split(' '))
-            try:
-                res.func(res)
-            except AttributeError:
-                print("Something went wrong")
-    except KeyboardInterrupt:
-        print("\n"+FIN,"Exiting")
+def xml(args):
+    xml_file=args.file
+    print("Reading from", xml_file)
+
+    """
+    with open(xml_file, "r") as fd:
+        lines = fd.readlines()
+    for line in lines:
+        print(line.split('\n')[0])
+    """
+    print()
+    print(clr.BOLD+'Executed command:'+clr.RESET)
+    print(clr.GREY+xml_parser.get_command(xml_file)+clr.RESET+'\n')
+    hosts=xml_parser.get_hosts(xml_file)
+    table=Table()
+    for h,d in hosts.items():
+        if (not(args.target) or (h==args.target)) and \
+           (not(args.service) or ('services' in d and args.service in d['services'])) and \
+           (not(args.port) or ('ports' in d and args.port in d['ports'])):
+            print(clr.BOLD+'IP: '+h+clr.RESET)
+            data=[]
+            headers=[]
+            for k,v in d.items():
+                if type(v)==list:
+                    headers.append(k)
+                    data.append(v)
+                else:
+                    print(clr.DIM+k+':', v+clr.RESET)
+
+            if len(headers):
+                for row in table.table(headers, data):
+                    print(clr.DIM+row+clr.RESET)
     
 def parse_args():
     parser = argparse.ArgumentParser() # top level parser
@@ -386,7 +395,7 @@ def parse_args():
     scan_parser.add_argument('-o', '--output', help='Output directory. Will write the nmap files into this dir, divided in subdirs.')
     scan_parser.add_argument('-i', '--version-intensity', help='Version intensity. Overwrites the default value of 6')
     scan_parser.add_argument('-t', '--threads', help='Maximum number of threads to run. Default is 1', type=int)
-    scan_parser.add_argument('-fp', '--full-portscan', help='Do full portscan for all hosts, scanning all ports. This could take a while and alert defences of your activities.', action='store_true')
+    scan_parser.add_argument('-nfp', '--no-full-portscan', help='Do full portscan for all hosts, scanning all ports. This could take a while and alert defences of your activities.', action='store_true')
     scan_parser.set_defaults(func=scan)
 
     autoscan_parser = subparsers.add_parser('autoscan', help='Autoscan mode. Autoscan local network using the pre-defined Nmap scans')
@@ -399,21 +408,24 @@ def parse_args():
 
     ## Read parser
     read_parser = subparsers.add_parser('read', help='Read mode. Read information on target(s), found during scan mode')
-    read_parser.add_argument('target', help='Target(s) to read information of. Quick way to get target information.')
+    read_parser.add_argument('-t', '--target', help='Target(s) to read information of. Quick way to get target information.')
+    read_parser.add_argument('-s', '--service', help='List all targets with the specified service running, along with the port numbers')
     read_parser.add_argument('database', help='Database to read from.')
     read_parser.set_defaults(func=read)
 
-    inter_parser = subparsers.add_parser('interactive', help='Interactive mode. Interactively request information from the database.')
-    inter_parser.set_defaults(func=interactive)    
+    #inter_parser = subparsers.add_parser('interactive', help='Interactive mode. Interactively request information from the database.')
+    #inter_parser.set_defaults(func=interactive)
+    xml_read_parser = subparsers.add_parser('xml', help='Read information from a Nmap XML file')
+    xml_read_parser.add_argument('file', help='Nmap XML file to read')
+    xml_read_parser.add_argument('-t', '--target', help='Read results for specific target')
+    xml_read_parser.add_argument('-s', '--service', help='Show only hosts with a specific service running')
+    xml_read_parser.add_argument('-p', '--port', help='Show only hosts with a specific port opened')
+    xml_read_parser.set_defaults(func=xml)
     
     return parser.parse_args()
 
 def main():
     print(INIT,"Starting Nwrapy")
-    print('''[###] Nwrapy  Copyright (C) 2021  jochemste
-    This program comes with ABSOLUTELY NO WARRANTY; for details use the -h option.
-    This is free software, and you are welcome to redistribute it
-    under certain conditions; for details use the -h option''')
 
     args = parse_args()
 
