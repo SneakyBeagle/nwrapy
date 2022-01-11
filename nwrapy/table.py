@@ -1,12 +1,18 @@
 import os
 
 class Table():
+    """
+    Class to allow the creation of CLI tables
+    """
 
-    def table(self, headers, data, col='|', rw='-', corner='+'):
+    def table(self, headers: list, data: list, col: str='|', rw: str='-', corner: str='+'):
+        """
+        """
         assert len(headers)==len(data)
         col_widths=self.column_width(headers, data)
         
         term_width=os.get_terminal_size().columns
+        max_width=term_width/len(headers)
         col_width=max(col_widths)
         row_div=corner+rw*(col_width-1)
 
@@ -20,7 +26,8 @@ class Table():
         for i,header in enumerate(headers):
             string=col+' '+header
             rem=col_widths[i]-(len(string))
-            rows[-1]+=string+' '*rem
+            string+=' '*rem
+            rows[-1]+=string
         rows[-1]+=col
 
         rows.append('')
@@ -29,12 +36,13 @@ class Table():
         rows[-1]+=corner
 
         # Add data
-        for i in range(len(headers)):
+        for i in range(len(data[0])):
             rows.append('')
             for j,da in enumerate(data):
                 string=col+' '+da[i]
                 rem=col_widths[j]-(len(string))
-                rows[-1]+=string+' '*rem
+                string+=' '*rem
+                rows[-1]+=string
             rows[-1]+=col
 
         rows.append('')
@@ -44,7 +52,10 @@ class Table():
         
         return rows
         
-    def column_width(self, headers, data):
+    def column_width(self, headers: list, data: list):
+        """
+        
+        """
         lengths=[]
 
         for i in range(len(headers)):

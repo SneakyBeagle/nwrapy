@@ -353,7 +353,7 @@ def read(args):
 
 def xml(args):
     xml_file=args.file
-    print("Reading from", xml_file)
+    print(clr.BOLD+"Reading from", xml_file)
 
     """
     with open(xml_file, "r") as fd:

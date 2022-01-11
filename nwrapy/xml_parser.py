@@ -38,6 +38,7 @@ class XML_Parser():
                 versions=[]
                 extrainfo=[]
                 ostypes=[]
+                scripts=[]
                 methods=[]
                 ports=self.find_ports(host=host)
                 for port in ports:
@@ -50,6 +51,10 @@ class XML_Parser():
                         versions.append(str(service.get('version')))
                         extrainfo.append(str(service.get('extrainfo')))
                         ostypes.append(str(service.get('ostype')))
+                        try:
+                            scripts.append(str(port.find('script').get('output')))
+                        except AttributeError:
+                            scripts.append('None')
                         #methods.append(str(service.get('method')))
                 hosts[ip] = {}
                 if len(hostname):
@@ -62,6 +67,8 @@ class XML_Parser():
                     hosts[ip]['extrainfo']=extrainfo
                 if len(ostypes):
                     hosts[ip]['ostypes']=ostypes
+                if len(scripts):
+                    hosts[ip]['scripts']=scripts
                 #hosts[ip]['methods']=methods
                 
         return hosts
