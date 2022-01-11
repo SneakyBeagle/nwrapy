@@ -9,12 +9,19 @@ Stores it nicely in a db, after which it is written into .csv files for easy rev
 ## Install
 
 The installation can best be done as root user, since it will otherwise install it only for the current user. The script needs to be run as root, so it needs to be in the path for the root user.
+
+For the latest version, clone this repository and install through pip:
 ```
 sudo pip install .
 ```
 
+Or, use the one on [PyPi](https://pypi.org/project/nwrapy/0.1.0/)
+```
+sudo pip install nwrapy
+```
+
 ## Usage
-Most of the scans used in Nwrapy require root privileges.
+Most of the scans used in Nwrapy require root privileges. For this reason, the script needs to be run as root or with sudo.
 
 Scan CIDR range:
 ```
