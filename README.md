@@ -8,14 +8,9 @@ Stores it nicely in a db, after which it is written into .csv files for easy rev
 
 ## Install
 
-.deb package (can be found [here](release/))
+The installation can best be done as root user, since it will otherwise install it only for the current user. The script needs to be run as root, so it needs to be in the path for the root user.
 ```
-apt install ./nwrapy_vX.X.X_<target>.deb
-```
-
-Build and install directly, without .deb package:
-```
-./install.sh
+sudo pip install .
 ```
 
 ## Usage
@@ -38,7 +33,7 @@ nwrapy scan "192.168.0.10 192.168.1.100 10.10.0.17" database.db
 
 Specify intensity (default is 6, while normal nmap default is 7)
 ```
-nwrapy scan 192.168.1.1 database.db -i 7
+nwrapy scan 192.168.0.1 database.db -i 7
 ```
 
 Perform scan of network (CIDR /24) the current device is connected to and output to specific directory (usefull for automated scheduled testing using cron for example):
@@ -75,14 +70,8 @@ nwrapy_output/
 ```
 
 ## Uninstall
-This depends on the install method you used. If you used the .deb package, you can uninstall by:
 ```
-sudo apt remove nwrapy
-```
-
-Otherwise you can use the uninstall script, included in this repo:
-```
-./uninstall
+sudo pip uninstall nwrapy
 ```
 
 ![GitHub Contributors Image](https://contrib.rocks/image?repo=SneakyBeagle/nwrapy)
