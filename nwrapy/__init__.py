@@ -618,7 +618,7 @@ def parse_args():
 
 
 def main():
-    version = "0.1.4"
+    version = "0.1.5"
     print(INIT, "Starting Nwrapy", version)
 
     args, parser = parse_args()
