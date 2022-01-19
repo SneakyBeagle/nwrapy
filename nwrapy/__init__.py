@@ -405,6 +405,7 @@ def read(args):
 
     print(FIN, "Finished")
 
+
 def xml(args):
     xml_file = args.file
     print(clr.BOLD + "Reading from", xml_file + clr.RESET)
@@ -463,6 +464,7 @@ def xml(args):
 
     print(FIN, "Finished")
 
+
 def merge(args):
     files = args.files
     if args.new_file in files:
@@ -479,7 +481,6 @@ def merge(args):
     except Exception as e:
         print(clr.RED + clr.BOLD + "Failed to merge" + clr.RESET)
         print("Reason:", e)
-    
 
 
 def parse_args():
@@ -617,7 +618,8 @@ def parse_args():
 
 
 def main():
-    print(INIT, "Starting Nwrapy")
+    version = "0.1.4"
+    print(INIT, "Starting Nwrapy", version)
 
     args, parser = parse_args()
 
