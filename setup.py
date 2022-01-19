@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as f:
     readme=f.read()
 
 setup(name='nwrapy',
-      version='0.1.1',
+      version='0.1.3',
       description='Nmap wrapper',
       author='Jochem Stevense',
       author_email='',
