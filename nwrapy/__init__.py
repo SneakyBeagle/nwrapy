@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-from nwrapy.nmap_db import db
-from nwrapy.nmap_wrapper import Nmap_Wrapper
-from nwrapy.xml_parser import xml_parser, Parse_exception
-from nwrapy.csv_conv import csv_conv
-from nwrapy.colours import clr
-from nwrapy.interactive import *
-from nwrapy.read import *
-from nwrapy.get_ip import *
-from nwrapy.table import Table
+from .nmap_db import db
+from .nmap_wrapper import Nmap_Wrapper
+from .xml_parser import xml_parser, Parse_exception
+from .csv_conv import csv_conv
+from .colours import clr
+from .interactive import *
+from .read import *
+from .get_ip import *
+from .table import Table
 
 import re
 import sys

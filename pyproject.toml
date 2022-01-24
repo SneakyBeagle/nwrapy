@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "nwrapy"
+version = "5"
+description = "Nmap wrapper"
+authors = ["Jochem Stevense <jochemstevense@protonmail.com>"]
+license = "GPLv3"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+mypy = "^0.931"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
